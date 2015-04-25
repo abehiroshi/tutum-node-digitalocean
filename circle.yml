@@ -1,0 +1,30 @@
+dependencies:
+  cache_directories:
+    - .vagrant
+    - ~/.vagrant.d
+    - ~/.ssh
+    - ~/.tmp
+  pre:
+    - test -f ~/.ssh/vagrant.rsa || ssh-keygen -f ~/.ssh/vagrant.rsa -N ""
+    - cat ~/.ssh/vagrant.rsa.pub
+    - test -f ~/.tmp/vagrant_1.7.2_x86_64.deb || wget -nH -P ~/.tmp https://dl.bintray.com/mitchellh/vagrant/vagrant_1.7.2_x86_64.deb
+    - which vagrant || sudo dpkg -i ~/.tmp/vagrant_1.7.2_x86_64.deb
+    - vagrant plugin list | grep vagrant-digitalocean || vagrant plugin install vagrant-digitalocean
+test:
+  override:
+    - vagrant global-status
+deployment:
+  master:
+    branch: master
+    commands:
+      - |
+        set -x
+        set -u
+        . machine.conf
+        . .env
+        if $ACTIVE; then
+          vagrant up --provider=digital_ocean
+        else
+          ./delete-node.sh
+          vagrant destroy -f
+        fi
