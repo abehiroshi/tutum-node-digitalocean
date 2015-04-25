@@ -14,8 +14,8 @@ test:
   override:
     - vagrant global-status
 deployment:
-  master:
-    branch: master
+  deploy:
+    branch: deploy
     commands:
       - |
         set -x
